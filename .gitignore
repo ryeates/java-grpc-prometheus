@@ -1,7 +1,7 @@
-bazel-*
 .classpath
 .project
 .idea*
 project.iml
 output
 *.swp
+target
