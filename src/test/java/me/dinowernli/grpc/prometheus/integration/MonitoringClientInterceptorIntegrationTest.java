@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /** Integration tests for the client-side monitoring pipeline. */
 public class MonitoringClientInterceptorIntegrationTest {
@@ -48,7 +49,10 @@ public class MonitoringClientInterceptorIntegrationTest {
 
   @After
   public void tearDown() throws Throwable {
-    grpcServer.shutdown().awaitTermination();
+	  grpcServer.shutdownNow();
+	  while (!grpcServer.isShutdown()) {
+		  grpcServer.awaitTermination(20, MILLISECONDS);
+	  }
   }
 
   @Test

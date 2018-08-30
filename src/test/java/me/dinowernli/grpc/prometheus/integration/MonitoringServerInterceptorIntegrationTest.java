@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Integrations tests which make sure that if a service is started with a
@@ -55,7 +56,10 @@ public class MonitoringServerInterceptorIntegrationTest {
 
   @After
   public void tearDown() throws Exception {
-    grpcServer.shutdown().awaitTermination();
+	  grpcServer.shutdownNow();
+	  while (!grpcServer.isShutdown()) {
+		  grpcServer.awaitTermination(20, MILLISECONDS);
+	  }
   }
 
   @Test

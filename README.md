@@ -62,3 +62,14 @@ grpcStub = HelloServiceGrpc.newStub(NettyChannelBuilder.forAddress(REMOTE_HOST, 
 
 * [gRPC](http://grpc.io)
 * [Prometheus](http://prometheus.io)
+
+## Updates
+
+* Move to gRPC 1.13.1
+* Move to Java 11
+* Clean up test shutdown
+
+## TODO
+
+* Move to Gradle KT and offer patch back to dead? ecosystem repo
+* Maven Central
