@@ -11,17 +11,22 @@ import io.prometheus.client.CollectorRegistry;
 public class Configuration {
   private static double[] DEFAULT_LATENCY_BUCKETS =
       new double[] {.001, .005, .01, .05, 0.075, .1, .25, .5, 1, 2, 5, 10};
+  private static int DEFAULT_PORT = 12001;
+
 
   private final boolean isIncludeLatencyHistograms;
+  private boolean isProvideExpositionServer;
   private final CollectorRegistry collectorRegistry;
   private final double[] latencyBuckets;
+  private final int port;
 
   /** Returns a {@link Configuration} for recording all cheap metrics about the rpcs. */
   public static Configuration cheapMetricsOnly() {
     return new Configuration(
         false /* isIncludeLatencyHistograms */,
         CollectorRegistry.defaultRegistry,
-        DEFAULT_LATENCY_BUCKETS);
+        DEFAULT_LATENCY_BUCKETS,
+		DEFAULT_PORT);
   }
 
   /**
@@ -32,7 +37,8 @@ public class Configuration {
     return new Configuration(
         true /* isIncludeLatencyHistograms */,
         CollectorRegistry.defaultRegistry,
-        DEFAULT_LATENCY_BUCKETS);
+        DEFAULT_LATENCY_BUCKETS,
+		DEFAULT_PORT);
   }
 
   /**
@@ -40,7 +46,7 @@ public class Configuration {
    * recorded using the supplied {@link CollectorRegistry}.
    */
   public Configuration withCollectorRegistry(CollectorRegistry collectorRegistry) {
-    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets);
+    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port);
   }
 
   /**
@@ -48,10 +54,20 @@ public class Configuration {
    * recorded with the specified set of buckets.
    */
   public Configuration withLatencyBuckets(double[] buckets) {
-    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, buckets);
+    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, buckets, port);
   }
 
-  /** Returns whether or not latency histograms for calls should be included. */
+  public Configuration withPort(int port) {
+  	Configuration configuration = new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port);
+  	configuration.setProvideExpositionServer(true);
+  	return configuration;
+  }
+
+  private void setProvideExpositionServer(boolean bool) {
+    isProvideExpositionServer = bool;
+  }
+
+	/** Returns whether or not latency histograms for calls should be included. */
   public boolean isIncludeLatencyHistograms() {
     return isIncludeLatencyHistograms;
   }
@@ -69,9 +85,19 @@ public class Configuration {
   private Configuration(
       boolean isIncludeLatencyHistograms,
       CollectorRegistry collectorRegistry,
-      double[] latencyBuckets) {
+      double[] latencyBuckets,
+	  int port) {
     this.isIncludeLatencyHistograms = isIncludeLatencyHistograms;
     this.collectorRegistry = collectorRegistry;
     this.latencyBuckets = latencyBuckets;
+    this.port = port;
+  }
+
+  public boolean isProvideExpositionServer() {
+    return isProvideExpositionServer;
+  }
+
+  public int getPort() {
+  	return port == 0 ? DEFAULT_PORT : port;
   }
 }

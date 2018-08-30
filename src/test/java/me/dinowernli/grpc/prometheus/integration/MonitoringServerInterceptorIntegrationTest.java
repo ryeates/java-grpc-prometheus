@@ -56,9 +56,8 @@ public class MonitoringServerInterceptorIntegrationTest {
 
   @After
   public void tearDown() throws Exception {
-	  grpcServer.shutdownNow();
-	  while (!grpcServer.isShutdown()) {
-		  grpcServer.awaitTermination(20, MILLISECONDS);
+	  grpcServer.shutdown();
+	  while (!grpcServer.awaitTermination(20, MILLISECONDS)) {
 	  }
   }
 

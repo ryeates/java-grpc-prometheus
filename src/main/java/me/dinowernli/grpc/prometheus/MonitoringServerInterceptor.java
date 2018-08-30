@@ -2,6 +2,7 @@
 
 package me.dinowernli.grpc.prometheus;
 
+import java.io.IOException;
 import java.time.Clock;
 
 import io.grpc.Metadata;
@@ -9,6 +10,7 @@ import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.prometheus.client.exporter.HTTPServer;
 
 /** A {@link ServerInterceptor} which sends stats about incoming grpc calls to Prometheus. */
 public class MonitoringServerInterceptor implements ServerInterceptor {
@@ -26,6 +28,13 @@ public class MonitoringServerInterceptor implements ServerInterceptor {
     this.clock = clock;
     this.configuration = configuration;
     this.serverMetricsFactory = serverMetricsFactory;
+	try {
+      if (configuration.isProvideExpositionServer()) {
+		  new HTTPServer(configuration.getPort());
+      }
+	} catch (IOException e) {
+	  throw new RuntimeException("Failed to start exposition HTTP server on port " +configuration.getPort());
+	}
   }
 
   @Override
