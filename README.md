@@ -1,8 +1,8 @@
 # java-grpc-prometheus
 
-[![Build Status](https://travis-ci.org/grpc-ecosystem/java-grpc-prometheus.svg?branch=master)](https://travis-ci.org/grpc-ecosystem/java-grpc-prometheus)
-
 Java interceptors which can be used to monitor Grpc services using Prometheus.
+
+Forked as the grpc-ecosystem version looks dead and gRPC has moved on.
 
 ## Features
 
@@ -30,13 +30,6 @@ The server interceptors have an identical implementation in Golang, [go-grpc-pro
 
 ## Usage
 
-This library is made available on the [dinowernli GitHub Maven repository](https://github.com/dinowernli/maven-repos/tree/master).
-Once the repository is set up, the library can be included using the following artifact id:
-
-```
-me.dinowernli:java-grpc-prometheus:0.1.0
-```
-
 In order to attach the monitoring server interceptor to your gRPC server, you can do the following:
 
 ```java
@@ -58,6 +51,7 @@ grpcStub = HelloServiceGrpc.newStub(NettyChannelBuilder.forAddress(REMOTE_HOST, 
     .build());
 ```
 
+By default there is no exposition server provided for Prometheus to scrape. Using the `withPort(<somePortNumber>)` starts the basic Prometheus provided HTTPServer on the given port.
 ## Related reading
 
 * [gRPC](http://grpc.io)
