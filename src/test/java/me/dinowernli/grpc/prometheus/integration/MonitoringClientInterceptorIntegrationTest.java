@@ -1,6 +1,8 @@
 package me.dinowernli.grpc.prometheus.integration;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import com.github.dinowernli.proto.grpc.prometheus.HelloProto;
 import com.github.dinowernli.proto.grpc.prometheus.HelloProto.HelloResponse;
@@ -24,6 +26,7 @@ import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.fail;
 
 /** Integration tests for the client-side monitoring pipeline. */
 public class MonitoringClientInterceptorIntegrationTest {
@@ -173,6 +176,35 @@ public class MonitoringClientInterceptorIntegrationTest {
     assertThat(countSamples(
         "grpc_client_completed_latency_seconds",
         "grpc_client_completed_latency_seconds_bucket")).isEqualTo(expectedNum);
+  }
+
+  @Test
+  public void startsExpositionServer() throws IOException {
+  	int port = Utils.pickUnusedPort();
+  	createClientStub(Configuration.cheapMetricsOnly().withPort(port));
+
+  	URL url = new URL("http://localhost:" + port + "/metrics");
+  	HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+  	con.setRequestMethod("GET");
+  	assertThat(con.getResponseCode()).isEqualTo(200);
+  }
+
+  @Test
+  public void noExpositionServer() throws IOException {
+  	int port = Utils.pickUnusedPort();
+  	createClientStub(Configuration.cheapMetricsOnly());
+
+  	URL url = new URL("http://localhost:" + port + "/metrics");
+  	HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+  	try {
+	  con.setRequestMethod("GET");
+	  con.getResponseCode();
+	  fail();
+	} catch (Exception e) {
+		assertThat(e.getMessage()).isEqualTo("Connection refused (Connection refused)");
+	}
   }
 
 

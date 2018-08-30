@@ -59,11 +59,11 @@ By default there is no exposition server provided for Prometheus to scrape. Usin
 
 ## Updates
 
-* Move to gRPC 1.13.1
-* Move to Java 11
+* Moved to gRPC 1.13.1
+* Moved to Java 11
 * Clean up test shutdown
 
 ## TODO
 
-* Move to Gradle KT and offer patch back to dead? ecosystem repo
+* Move to Gradle KT and offer PR back to dead? ecosystem repo
 * Maven Central

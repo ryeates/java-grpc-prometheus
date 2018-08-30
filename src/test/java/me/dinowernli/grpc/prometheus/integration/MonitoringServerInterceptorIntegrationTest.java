@@ -3,6 +3,10 @@
 package me.dinowernli.grpc.prometheus.integration;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 import com.github.dinowernli.proto.grpc.prometheus.HelloProto.HelloRequest;
 import com.github.dinowernli.proto.grpc.prometheus.HelloProto.HelloResponse;
@@ -21,6 +25,7 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.StreamRecorder;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.HTTPServer;
 import me.dinowernli.grpc.prometheus.Configuration;
 import me.dinowernli.grpc.prometheus.MonitoringServerInterceptor;
 import me.dinowernli.grpc.prometheus.testing.HelloServiceImpl;
@@ -31,6 +36,7 @@ import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.fail;
 
 /**
  * Integrations tests which make sure that if a service is started with a
@@ -205,6 +211,35 @@ public class MonitoringServerInterceptorIntegrationTest {
 
     assertThat(findRecordedMetricOrThrow("grpc_server_started_total").samples).hasSize(2);
     assertThat(findRecordedMetricOrThrow("grpc_server_handled_total").samples).hasSize(2);
+  }
+
+  @Test
+  public void startsExpositionServer() throws IOException {
+  	int port = Utils.pickUnusedPort();
+  	startGrpcServer(Configuration.cheapMetricsOnly().withPort(port));
+
+  	URL url = new URL("http://localhost:" + port + "/metrics");
+  	HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+  	con.setRequestMethod("GET");
+  	assertThat(con.getResponseCode()).isEqualTo(200);
+  }
+
+  @Test
+  public void noExpositionServer() throws IOException {
+  	int port = Utils.pickUnusedPort();
+  	startGrpcServer(Configuration.cheapMetricsOnly());
+
+  	URL url = new URL("http://localhost:" + port + "/metrics");
+  	HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+  	try {
+	  con.setRequestMethod("GET");
+	  con.getResponseCode();
+	  fail();
+  	} catch (Exception e) {
+	  assertThat(e.getMessage()).isEqualTo("Connection refused (Connection refused)");
+  	}
   }
 
   private void startGrpcServer(Configuration monitoringConfig) {

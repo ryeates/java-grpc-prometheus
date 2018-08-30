@@ -15,7 +15,7 @@ public class Configuration {
 
 
   private final boolean isIncludeLatencyHistograms;
-  private boolean isProvideExpositionServer;
+  private final boolean isProvideExpositionServer;
   private final CollectorRegistry collectorRegistry;
   private final double[] latencyBuckets;
   private final int port;
@@ -26,7 +26,8 @@ public class Configuration {
         false /* isIncludeLatencyHistograms */,
         CollectorRegistry.defaultRegistry,
         DEFAULT_LATENCY_BUCKETS,
-		DEFAULT_PORT);
+        DEFAULT_PORT,
+		false);
   }
 
   /**
@@ -38,7 +39,8 @@ public class Configuration {
         true /* isIncludeLatencyHistograms */,
         CollectorRegistry.defaultRegistry,
         DEFAULT_LATENCY_BUCKETS,
-		DEFAULT_PORT);
+        DEFAULT_PORT,
+		false);
   }
 
   /**
@@ -46,7 +48,7 @@ public class Configuration {
    * recorded using the supplied {@link CollectorRegistry}.
    */
   public Configuration withCollectorRegistry(CollectorRegistry collectorRegistry) {
-    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port);
+    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port, isProvideExpositionServer);
   }
 
   /**
@@ -54,20 +56,15 @@ public class Configuration {
    * recorded with the specified set of buckets.
    */
   public Configuration withLatencyBuckets(double[] buckets) {
-    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, buckets, port);
+    return new Configuration(isIncludeLatencyHistograms, collectorRegistry, buckets, port, isProvideExpositionServer);
   }
 
   public Configuration withPort(int port) {
-  	Configuration configuration = new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port);
-  	configuration.setProvideExpositionServer(true);
-  	return configuration;
+      return new Configuration(isIncludeLatencyHistograms, collectorRegistry, latencyBuckets, port, true);
+
   }
 
-  private void setProvideExpositionServer(boolean bool) {
-    isProvideExpositionServer = bool;
-  }
-
-	/** Returns whether or not latency histograms for calls should be included. */
+    /** Returns whether or not latency histograms for calls should be included. */
   public boolean isIncludeLatencyHistograms() {
     return isIncludeLatencyHistograms;
   }
@@ -86,11 +83,13 @@ public class Configuration {
       boolean isIncludeLatencyHistograms,
       CollectorRegistry collectorRegistry,
       double[] latencyBuckets,
-	  int port) {
+      int port,
+      boolean isProvideExpositionServer) {
     this.isIncludeLatencyHistograms = isIncludeLatencyHistograms;
     this.collectorRegistry = collectorRegistry;
     this.latencyBuckets = latencyBuckets;
     this.port = port;
+    this.isProvideExpositionServer = isProvideExpositionServer;
   }
 
   public boolean isProvideExpositionServer() {
@@ -98,6 +97,6 @@ public class Configuration {
   }
 
   public int getPort() {
-  	return port == 0 ? DEFAULT_PORT : port;
+    return port == 0 ? DEFAULT_PORT : port;
   }
 }
