@@ -11,6 +11,7 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
 import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 
 /** A {@link ClientInterceptor} which sends stats about incoming grpc calls to Prometheus. */
 public class MonitoringClientInterceptor implements ClientInterceptor {
@@ -30,6 +31,9 @@ public class MonitoringClientInterceptor implements ClientInterceptor {
     this.clock = clock;
     this.configuration = configuration;
     this.clientMetricsFactory = clientMetricsFactory;
+    if (configuration.isIncludeLatencyHistograms()) { //rather than name cheap/full metrics we must infer from this flag
+		DefaultExports.initialize();
+	}
 	try {
 	  if (configuration.isProvideExpositionServer()) {
 	    new HTTPServer(configuration.getPort());
