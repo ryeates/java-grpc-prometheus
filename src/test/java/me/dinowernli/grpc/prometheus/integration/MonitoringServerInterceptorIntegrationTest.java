@@ -63,7 +63,7 @@ public class MonitoringServerInterceptorIntegrationTest {
   }
 
   @Test
-  public void unaryRpcMetrics() throws Throwable {
+  public void unaryRpcMetrics() {
     startGrpcServer(CHEAP_METRICS);
     createGrpcBlockingStub().sayHello(REQUEST);
 
@@ -106,7 +106,7 @@ public class MonitoringServerInterceptorIntegrationTest {
   }
 
   @Test
-  public void serverStreamRpcMetrics() throws Throwable {
+  public void serverStreamRpcMetrics() {
     startGrpcServer(CHEAP_METRICS);
     ImmutableList<HelloResponse> responses =
         ImmutableList.copyOf(createGrpcBlockingStub().sayHelloServerStream(REQUEST));
@@ -160,7 +160,7 @@ public class MonitoringServerInterceptorIntegrationTest {
   }
 
   @Test
-  public void noHistogramIfDisabled() throws Throwable {
+  public void noHistogramIfDisabled() {
     startGrpcServer(CHEAP_METRICS);
     createGrpcBlockingStub().sayHello(REQUEST);
     assertThat(RegistryHelper.findRecordedMetric(
@@ -168,7 +168,7 @@ public class MonitoringServerInterceptorIntegrationTest {
   }
 
   @Test
-  public void addsHistogramIfEnabled() throws Throwable {
+  public void addsHistogramIfEnabled() {
     startGrpcServer(ALL_METRICS);
     createGrpcBlockingStub().sayHello(REQUEST);
 
@@ -177,7 +177,7 @@ public class MonitoringServerInterceptorIntegrationTest {
   }
 
   @Test
-  public void overridesHistogramBuckets() throws Throwable {
+  public void overridesHistogramBuckets() {
     double[] buckets = new double[] {0.1, 0.2, 0.8};
     startGrpcServer(ALL_METRICS.withLatencyBuckets(buckets));
     createGrpcBlockingStub().sayHello(REQUEST);
